@@ -1,4 +1,27 @@
-import React from 'react';
+import React from "react";
+import axios from 'axios';
+
+function logError(error, info) {
+  const log = {
+    message: error.message,
+    stack: error.stack,
+    info: info,
+    timestamp: new Date().toISOString(),
+  };
+
+  console.log("Sending log:", log);
+  sendLogToServer(log);
+}
+
+function sendLogToServer(log) {
+  axios.post("http://localhost:8091/log", log, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((response) => console.log("Server response:", response.data))
+    .catch((err) => console.error("Failed to send log:", err));
+}
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -7,7 +30,11 @@ class ErrorBoundary extends React.Component {
   }
 
   static getDerivedStateFromError(error) {
-    return { hasError: true }
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, info) {
+    logError(error, info);
   }
 
   render() {
